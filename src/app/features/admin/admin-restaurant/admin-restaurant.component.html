@@ -1,0 +1,144 @@
+<div class="flex h-screen bg-background dark:bg-gray-900">
+  <app-admin-sidebar />
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <app-header />
+    <main class="flex-1 overflow-y-auto p-6">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center gap-4">
+          <a routerLink="/admin/restaurants" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-secondary dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </a>
+          <div>
+            <h1 class="text-2xl font-display font-bold text-secondary-dark dark:text-white">{{ isEditMode() ? 'Edit Restaurant' : 'Add New Restaurant' }}</h1>
+            <p class="text-secondary dark:text-gray-400 text-sm mt-1">{{ isEditMode() ? 'Update your restaurant information' : 'Register a new restaurant' }}</p>
+          </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Basic Information -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-secondary-dark dark:text-white mb-4">Basic Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Restaurant Name *</label>
+                <input type="text" formControlName="name" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Enter restaurant name"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Cuisine Type *</label>
+                <select formControlName="cuisineType" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                  <option value="">Select cuisine</option>
+                  <option value="Italian">Italian</option>
+                  <option value="Japanese">Japanese</option>
+                  <option value="Indian">Indian</option>
+                  <option value="Mexican">Mexican</option>
+                  <option value="French">French</option>
+                  <option value="Chinese">Chinese</option>
+                  <option value="American">American</option>
+                  <option value="Mediterranean">Mediterranean</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Price Range *</label>
+                <select formControlName="priceRange" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                  <option value="">Select price range</option>
+                  <option value="BUDGET">$ Budget</option>
+                  <option value="MODERATE">$$ Moderate</option>
+                  <option value="PREMIUM">$$$ Premium</option>
+                </select>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Description</label>
+                <textarea formControlName="description" rows="3" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Describe your restaurant..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-secondary-dark dark:text-white mb-4">Location & Contact</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Address *</label>
+                <input type="text" formControlName="formattedAddress" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Enter full address"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Region *</label>
+                <select formControlName="region" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                  <option value="">Select region</option>
+                  <option value="NORTH">North</option>
+                  <option value="SOUTH">South</option>
+                  <option value="EAST">East</option>
+                  <option value="WEST">West</option>
+                  <option value="CENTRAL">Central</option>
+                  <option value="DOWNTOWN">Downtown</option>
+                  <option value="SUBURBAN">Suburban</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">City *</label>
+                <input type="text" formControlName="city" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="City name"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Latitude</label>
+                <input type="number" formControlName="latitude" step="any" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="40.7128"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Longitude</label>
+                <input type="number" formControlName="longitude" step="any" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="-74.0060"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Phone *</label>
+                <input type="tel" formControlName="phone" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="+1 (555) 000-0000"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Website</label>
+                <input type="url" formControlName="website" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://example.com"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Working Hours -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-secondary-dark dark:text-white mb-4">Working Hours</h2>
+            <div class="space-y-3">
+              @for (day of weekDays; track day.key) {
+                <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div class="w-28">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" [checked]="workingDays()[day.key]" (change)="toggleDay(day.key)" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"/>
+                      <span class="font-medium text-secondary-dark dark:text-gray-200">{{ day.label }}</span>
+                    </label>
+                  </div>
+                  @if (workingDays()[day.key]) {
+                    <div class="flex items-center gap-2 flex-1">
+                      <input type="time" [value]="workingHours()[day.key]?.open || '09:00'" (change)="updateHours(day.key, 'open', $event)" class="px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+                      <span class="text-secondary dark:text-gray-400">to</span>
+                      <input type="time" [value]="workingHours()[day.key]?.close || '22:00'" (change)="updateHours(day.key, 'close', $event)" class="px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+                    </div>
+                  } @else {
+                    <span class="text-secondary dark:text-gray-400 italic">Closed</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3">
+            <a routerLink="/admin/restaurants" class="px-6 py-3 border border-gray-200 dark:border-gray-600 text-secondary-dark dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              Cancel
+            </a>
+            <button type="submit" [disabled]="form.invalid || saving()" class="px-6 py-3 bg-gradient-to-r from-primary to-primary-light text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2">
+              @if (saving()) {
+                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                Saving...
+              } @else {
+                {{ isEditMode() ? 'Update Restaurant' : 'Add Restaurant' }}
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>

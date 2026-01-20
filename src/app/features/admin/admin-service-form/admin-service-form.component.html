@@ -1,0 +1,139 @@
+<div class="flex h-screen bg-background dark:bg-gray-900">
+  <app-admin-sidebar />
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <app-header />
+    <main class="flex-1 overflow-y-auto p-6">
+      <div class="max-w-3xl mx-auto space-y-6">
+        <!-- Header -->
+        <div class="flex items-center gap-4">
+          <a routerLink="/admin/services" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-secondary dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </a>
+          <div>
+            <h1 class="text-2xl font-display font-bold text-secondary-dark dark:text-white">{{ isEditMode() ? 'Edit Service' : 'Add New Service' }}</h1>
+            <p class="text-secondary dark:text-gray-400 text-sm mt-1">{{ isEditMode() ? 'Update service details' : 'Register a new service your restaurant offers' }}</p>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Basic Info -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-secondary-dark dark:text-white mb-4">Service Information</h2>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Service Name *</label>
+                <input type="text" formControlName="name" 
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="e.g., Wedding Catering, Private Dining"/>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Category *</label>
+                <select formControlName="category" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                  <option value="">Select a category</option>
+                  @for (cat of categories; track cat.name) {
+                    <option [value]="cat.name">{{ cat.icon }} {{ cat.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Description *</label>
+                <textarea formControlName="description" rows="4"
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  placeholder="Describe what this service includes..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-secondary-dark dark:text-white mb-4">Pricing</h2>
+            
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Price ({{ currency.currentCurrency().code }}) *</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary dark:text-gray-400">{{ currency.currentCurrency().symbol }}</span>
+                    <input type="number" formControlName="price" min="0" step="0.01"
+                      class="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="0.00"/>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Price Type *</label>
+                  <select formControlName="priceType" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="fixed">Fixed Price</option>
+                    <option value="hourly">Per Hour</option>
+                    <option value="per_person">Per Person</option>
+                    <option value="custom">Custom Quote</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Duration (optional)</label>
+                <input type="text" formControlName="duration"
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="e.g., 2 hours, 3 hours min, Full day"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Options -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-secondary-dark dark:text-white mb-4">Additional Options</h2>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Minimum Guests (optional)</label>
+                <input type="number" formControlName="minGuests" min="1"
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="e.g., 10"/>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Maximum Guests (optional)</label>
+                <input type="number" formControlName="maxGuests" min="1"
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="e.g., 100"/>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-secondary-dark dark:text-gray-200 mb-1">Advance Booking Required (days)</label>
+                <input type="number" formControlName="advanceBookingDays" min="0"
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="e.g., 7"/>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <input type="checkbox" formControlName="isActive" id="isActive" class="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary"/>
+                <label for="isActive" class="text-sm font-medium text-secondary-dark dark:text-gray-200">Service is active and available for booking</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-4 justify-end">
+            <a routerLink="/admin/services" class="px-6 py-3 border border-gray-200 dark:border-gray-600 text-secondary-dark dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              Cancel
+            </a>
+            <button type="submit" [disabled]="form.invalid || saving()"
+              class="px-6 py-3 bg-gradient-to-r from-primary to-primary-light text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2">
+              @if (saving()) {
+                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                Saving...
+              } @else {
+                {{ isEditMode() ? 'Update Service' : 'Create Service' }}
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>

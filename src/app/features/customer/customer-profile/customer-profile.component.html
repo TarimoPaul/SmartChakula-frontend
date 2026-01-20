@@ -1,0 +1,214 @@
+<div class="min-h-screen bg-background">
+  <app-customer-header />
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <div class="space-y-6">
+      <div>
+        <h1 class="text-2xl font-display font-bold text-secondary-dark">My Profile</h1>
+        <p class="text-secondary text-sm mt-1">Manage your account settings</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Profile Card -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <div class="w-24 h-24 bg-gradient-to-br from-primary to-primary-light rounded-full mx-auto flex items-center justify-center mb-4">
+              <span class="text-4xl text-white font-bold">{{ getInitials() }}</span>
+            </div>
+            <h2 class="text-xl font-semibold text-secondary-dark">{{ user().fullName }}</h2>
+            <p class="text-secondary text-sm">{{ user().email }}</p>
+            <span class="inline-block mt-2 px-3 py-1 bg-accent/10 text-accent text-xs font-medium rounded-full">Customer</span>
+            
+            <div class="mt-6 pt-6 border-t border-gray-100">
+              <div class="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <p class="text-2xl font-bold text-secondary-dark">{{ stats().reservations }}</p>
+                  <p class="text-xs text-secondary">Reservations</p>
+                </div>
+                <div>
+                  <p class="text-2xl font-bold text-secondary-dark">{{ stats().reviews }}</p>
+                  <p class="text-xs text-secondary">Reviews</p>
+                </div>
+              </div>
+            </div>
+
+            <button (click)="showChangePhoto.set(true)" class="mt-4 text-sm text-primary hover:underline">
+              Change Photo
+            </button>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="bg-white rounded-xl shadow-sm p-4 mt-4">
+            <h3 class="font-medium text-secondary-dark mb-3">Quick Links</h3>
+            <div class="space-y-2">
+              <a routerLink="/customer/my-reservations" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 text-secondary hover:text-primary transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                My Reservations
+              </a>
+              <a routerLink="/customer/restaurants" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 text-secondary hover:text-primary transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                Browse Restaurants
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Form -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Personal Information -->
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-secondary-dark">Personal Information</h3>
+              @if (!editingProfile()) {
+                <button (click)="editingProfile.set(true)" class="text-sm text-primary hover:underline">Edit</button>
+              }
+            </div>
+
+            @if (editingProfile()) {
+              <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-secondary-dark mb-1">First Name</label>
+                    <input type="text" formControlName="firstName" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-secondary-dark mb-1">Last Name</label>
+                    <input type="text" formControlName="lastName" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-secondary-dark mb-1">Email</label>
+                  <input type="email" formControlName="email" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-secondary-dark mb-1">Phone</label>
+                  <input type="tel" formControlName="phone" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+                </div>
+                <div class="flex gap-3 justify-end">
+                  <button type="button" (click)="cancelEdit()" class="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">Cancel</button>
+                  <button type="submit" [disabled]="savingProfile()" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 disabled:opacity-50">
+                    {{ savingProfile() ? 'Saving...' : 'Save Changes' }}
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-sm text-secondary">First Name</p>
+                    <p class="font-medium text-secondary-dark">{{ profile().firstName }}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-secondary">Last Name</p>
+                    <p class="font-medium text-secondary-dark">{{ profile().lastName }}</p>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm text-secondary">Email</p>
+                  <p class="font-medium text-secondary-dark">{{ profile().email }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-secondary">Phone</p>
+                  <p class="font-medium text-secondary-dark">{{ profile().phone || 'Not provided' }}</p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Security -->
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-secondary-dark mb-4">Security</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="font-medium text-secondary-dark">Password</p>
+                  <p class="text-sm text-secondary">Last changed 30 days ago</p>
+                </div>
+                <button (click)="showChangePassword.set(true)" class="px-4 py-2 border border-gray-200 rounded-lg hover:bg-white text-sm">
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preferences -->
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-secondary-dark mb-4">Preferences</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-secondary-dark">Email Notifications</p>
+                  <p class="text-sm text-secondary">Receive reservation confirmations and updates</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [checked]="preferences().emailNotifications" (change)="togglePreference('emailNotifications')" class="sr-only peer"/>
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-secondary-dark">SMS Notifications</p>
+                  <p class="text-sm text-secondary">Receive text reminders for reservations</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [checked]="preferences().smsNotifications" (change)="togglePreference('smsNotifications')" class="sr-only peer"/>
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-secondary-dark">Marketing Emails</p>
+                  <p class="text-sm text-secondary">Receive special offers and promotions</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [checked]="preferences().marketingEmails" (change)="togglePreference('marketingEmails')" class="sr-only peer"/>
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-error/20">
+            <h3 class="text-lg font-semibold text-error mb-4">Danger Zone</h3>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-secondary-dark">Delete Account</p>
+                <p class="text-sm text-secondary">Permanently delete your account and all data</p>
+              </div>
+              <button (click)="confirmDeleteAccount()" class="px-4 py-2 border border-error text-error rounded-lg hover:bg-error/5 text-sm">
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Change Password Modal -->
+@if (showChangePassword()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+      <h3 class="text-lg font-semibold text-secondary-dark mb-4">Change Password</h3>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-secondary-dark mb-1">Current Password</label>
+          <input type="password" formControlName="currentPassword" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-secondary-dark mb-1">New Password</label>
+          <input type="password" formControlName="newPassword" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-secondary-dark mb-1">Confirm New Password</label>
+          <input type="password" formControlName="confirmNewPassword" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
+        </div>
+        <div class="flex gap-3 justify-end pt-2">
+          <button type="button" (click)="showChangePassword.set(false)" class="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
