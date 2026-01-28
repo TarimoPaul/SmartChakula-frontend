@@ -1,0 +1,1 @@
+import"./chunk-2VMXMS7J.js";var t=[{path:"",loadComponent:()=>import("./chunk-DGPN5CJI.js").then(o=>o.ReservationListComponent)},{path:"new",loadComponent:()=>import("./chunk-35R4WOMW.js").then(o=>o.ReservationFormComponent)}];export{t as RESERVATION_ROUTES};

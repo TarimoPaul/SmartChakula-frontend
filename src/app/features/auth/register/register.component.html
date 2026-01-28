@@ -1,0 +1,114 @@
+<div class="register-container">
+  <div class="register-wrapper">
+    <div class="register-header">
+      <h1 class="register-title">RMRTS</h1>
+      <p class="register-subtitle">Restaurant Menu & Reservation Transparency System</p>
+    </div>
+
+    <div class="register-card">
+      <div class="card-header">
+        <h2 class="card-title">Create Account</h2>
+        <p class="card-subtitle">Join us to discover and book restaurants</p>
+      </div>
+
+      @if (error()) {
+        <div class="alert alert-error">
+          {{ error() }}
+        </div>
+      }
+
+      @if (success()) {
+        <div class="alert alert-success">
+          {{ success() }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name *</label>
+            <input type="text" formControlName="firstName" 
+              class="form-input"
+              placeholder="John"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name *</label>
+            <input type="text" formControlName="lastName" 
+              class="form-input"
+              placeholder="Doe"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" formControlName="email" 
+            class="form-input"
+            placeholder="john@example.com"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" formControlName="phone" 
+            class="form-input"
+            placeholder="+1 555-0000"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password *</label>
+          <div class="password-wrapper">
+            <input [type]="showPassword() ? 'text' : 'password'" formControlName="password" 
+              class="form-input"
+              placeholder="Min. 8 characters"/>
+            <button type="button" (click)="showPassword.set(!showPassword())" class="password-toggle">
+              @if (showPassword()) {
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+              } @else {
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              }
+            </button>
+          </div>
+          @if (form.get('password')?.touched && form.get('password')?.errors?.['minlength']) {
+            <p class="form-error">Password must be at least 8 characters</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password *</label>
+          <input [type]="showPassword() ? 'text' : 'password'" formControlName="confirmPassword" 
+            class="form-input"
+            placeholder="Confirm your password"/>
+          @if (form.get('confirmPassword')?.touched && form.errors?.['passwordMismatch']) {
+            <p class="form-error">Passwords do not match</p>
+          }
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" formControlName="agreeTerms" id="agreeTerms" class="checkbox"/>
+          <label for="agreeTerms" class="checkbox-label">
+            I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>
+          </label>
+        </div>
+
+        <button type="submit" [disabled]="form.invalid || loading()" class="submit-btn">
+          @if (loading()) {
+            <svg class="spinner" fill="none" viewBox="0 0 24 24"><circle class="spinner-track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="spinner-head" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+            Creating account...
+          } @else {
+            Create Account
+          }
+        </button>
+      </form>
+
+      <div class="login-link">
+        <p>
+          Already have an account? 
+          <a routerLink="/login" class="link">Sign in</a>
+        </p>
+      </div>
+    </div>
+
+    <p class="copyright">
+      &copy; 2024 RMRTS. All rights reserved.
+    </p>
+  </div>
+</div>

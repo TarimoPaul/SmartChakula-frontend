@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminSidebarComponent } from '../../../shared/components/admin-sidebar/admin-sidebar.component';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
+import { GraphQLService, SmartCakulaRestaurant } from '../../../core/services/graphql.service';
+import { PreviewImageComponent } from './preview-image/preview-image.component';
 
 interface Restaurant {
   id: string;
@@ -10,6 +12,9 @@ interface Restaurant {
   cuisineType: string;
   region: string;
   city: string;
+  openingTime?: string;
+  closingTime?: string;
+  image?: string;
   rating: number;
   reviewCount: number;
   reservationCount: number;
@@ -20,7 +25,7 @@ interface Restaurant {
 @Component({
   selector: 'app-admin-restaurants',
   standalone: true,
-  imports: [CommonModule, RouterLink, AdminSidebarComponent, HeaderComponent],
+  imports: [CommonModule, RouterLink, AdminSidebarComponent, HeaderComponent, PreviewImageComponent],
   template: `
     <div class="flex h-screen bg-background">
       <app-admin-sidebar />
@@ -45,17 +50,25 @@ interface Restaurant {
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                   <div class="h-32 bg-gradient-to-br from-primary/20 to-accent/20 relative flex items-center justify-center">
                     <span class="text-5xl">🍽️</span>
+                    @if (r.image) {
+                      <div class="absolute left-4 bottom-0 translate-y-1/2 w-14 h-14 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center">
+                        <app-preview-image [src]="r.image" [alt]="r.name" class="w-full h-full object-contain" />
+                      </div>
+                    }
                     <div class="absolute top-3 right-3">
                       <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="r.status === 'ACTIVE' ? 'bg-success text-white' : 'bg-gray-400 text-white'">
                         {{ r.status }}
                       </span>
                     </div>
                   </div>
-                  <div class="p-5">
+                  <div class="p-5" [class.pt-10]="!!r.image">
                     <div class="flex items-start justify-between mb-3">
                       <div>
                         <h3 class="font-semibold text-lg text-secondary-dark">{{ r.name }}</h3>
-                        <p class="text-sm text-secondary">{{ r.cuisineType }} • {{ r.region }}</p>
+                        <p class="text-sm text-secondary">{{ r.cuisineType }} • {{ r.region }} • {{ r.city }}</p>
+                        @if (r.openingTime || r.closingTime) {
+                          <p class="text-xs text-secondary mt-1">{{ r.openingTime || '-' }} - {{ r.closingTime || '-' }}</p>
+                        }
                       </div>
                       <div class="flex items-center gap-1">
                         <svg class="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -107,10 +120,38 @@ interface Restaurant {
   `
 })
 export class AdminRestaurantsComponent {
-  restaurants = signal<Restaurant[]>([
-    { id: '1', name: 'The Golden Fork', cuisineType: 'Italian', region: 'Downtown', city: 'New York', rating: 4.8, reviewCount: 124, reservationCount: 456, menuItemCount: 32, status: 'ACTIVE' },
-    { id: '2', name: 'Le Petit Bistro', cuisineType: 'French', region: 'North', city: 'San Francisco', rating: 4.9, reviewCount: 156, reservationCount: 567, menuItemCount: 28, status: 'ACTIVE' }
-  ]);
+  private graphql = inject(GraphQLService);
+
+  restaurants = signal<Restaurant[]>([]);
+
+  ngOnInit(): void {
+    this.graphql.getSmartCakulaRestaurants().subscribe({
+      next: (list) => {
+        this.restaurants.set(list.map(r => this.mapFromSmartCakula(r)));
+      },
+      error: () => {
+        this.restaurants.set([]);
+      }
+    });
+  }
+
+  private mapFromSmartCakula(r: SmartCakulaRestaurant): Restaurant {
+    return {
+      id: r.uid,
+      name: r.name,
+      cuisineType: r.type || '-',
+      region: r.region || '-',
+      city: r.city || '-',
+      openingTime: r.openingTime || undefined,
+      closingTime: r.closingTime || undefined,
+      image: r.image || undefined,
+      rating: 0,
+      reviewCount: 0,
+      reservationCount: 0,
+      menuItemCount: 0,
+      status: (r.isOpen && r.isOpen.toLowerCase() === 'false') ? 'INACTIVE' : 'ACTIVE'
+    };
+  }
 
   toggleStatus(r: Restaurant): void {
     const newStatus = r.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';

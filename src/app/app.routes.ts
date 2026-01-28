@@ -27,6 +27,18 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  // SmartCakula Routes
+  {
+    path: 'smartcakula',
+    loadChildren: () => import('./features/smartcakula/smartcakula.routes').then(m => m.SMARTCAKULA_ROUTES),
+    canActivate: [authGuard]
+  },
+  // {
+  //   path: 'smartcakula',
+  //   loadChildren: () => import('./features/smartcakula/smartcakula.routes').then(m => m.SMARTCAKULA_ROUTES),
+  //   canActivate: [authGuard]
+  // },
+
   // Legacy routes (redirect to new structure)
   { path: 'dashboard', redirectTo: 'admin/dashboard', pathMatch: 'full' },
   { 

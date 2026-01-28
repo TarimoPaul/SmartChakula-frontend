@@ -1,20 +1,21 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Observable, tap, throwError } from 'rxjs';
+import { GraphQLService } from './graphql.service';
 
 export interface User {
   id: string;
   email: string;
   fullName: string;
-  role: 'SUPER_ADMIN' | 'RESTAURANT_ADMIN' | 'CUSTOMER';
-  restaurantIds?: string[]; // Restaurant Admin can manage multiple restaurants
+  role: string;
+  phone?: string;
+  isActive?: boolean;
+  createdAt?: string;
 }
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   user: User;
 }
 
@@ -26,7 +27,7 @@ export class AuthService {
   currentUser = signal<User | null>(null);
   isAuthenticated = signal(false);
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private graphql: GraphQLService, private router: Router) {
     this.loadStoredUser();
   }
 
@@ -40,8 +41,10 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
-      tap(response => {
+    // SmartCakula-backend expects LoginInput { identifier, password }
+    return this.graphql.login(email, password).pipe(
+      tap((response) => {
+        // SmartCakula returns: { token, user }
         localStorage.setItem(this.TOKEN_KEY, response.accessToken);
         localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
         this.currentUser.set(response.user);
@@ -66,22 +69,8 @@ export class AuthService {
     return this.currentUser()?.role === role;
   }
 
-  // Mock login for development
-  mockLogin(role: 'SUPER_ADMIN' | 'RESTAURANT_ADMIN' | 'CUSTOMER' = 'RESTAURANT_ADMIN'): void {
-    const users: Record<string, User> = {
-      'SUPER_ADMIN': { id: '0', email: 'superadmin@rmrts.com', fullName: 'Super Admin', role: 'SUPER_ADMIN' },
-      'RESTAURANT_ADMIN': { id: '1', email: 'restaurant@rmrts.com', fullName: 'Restaurant Admin', role: 'RESTAURANT_ADMIN', restaurantIds: ['1', '2'] },
-      'CUSTOMER': { id: '2', email: 'customer@rmrts.com', fullName: 'John Customer', role: 'CUSTOMER' }
-    };
-    const mockUser = users[role];
-    localStorage.setItem(this.TOKEN_KEY, 'mock-token');
-    localStorage.setItem(this.USER_KEY, JSON.stringify(mockUser));
-    this.currentUser.set(mockUser);
-    this.isAuthenticated.set(true);
-  }
-
-  isSuperAdmin(): boolean {
-    return this.currentUser()?.role === 'SUPER_ADMIN';
+  isSystemAdmin(): boolean {
+    return this.currentUser()?.role === 'SYSTEM_ADMIN';
   }
 
   isRestaurantAdmin(): boolean {
@@ -104,16 +93,8 @@ export class AuthService {
   }
 
   register(data: { fullName: string; email: string; phone?: string; password: string }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/register`, {
-      ...data,
-      role: 'CUSTOMER'
-    }).pipe(
-      tap(response => {
-        localStorage.setItem(this.TOKEN_KEY, response.accessToken);
-        localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
-        this.currentUser.set(response.user);
-        this.isAuthenticated.set(true);
-      })
-    );
+    // SmartCakula-backend currently exposes only login via GraphQL (no register mutation in schema).
+    // Keep method signature; if you add register to SmartCakula schema later, we can switch this too.
+    return throwError(() => new Error('Register via GraphQL is not available in SmartCakula-backend schema yet.'));
   }
 }

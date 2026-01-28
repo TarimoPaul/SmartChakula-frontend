@@ -1,0 +1,170 @@
+<div class="login-page">
+  <!-- Left Side - Hero Section -->
+  <div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+        </svg>
+      </div>
+      <h1 class="hero-title">RMRTS</h1>
+      <p class="hero-subtitle">Restaurant Menu & Reservation System</p>
+      <div class="hero-features">
+        <div class="feature">
+          <span class="feature-icon">🍽️</span>
+          <span>Browse Menus</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">📅</span>
+          <span>Easy Reservations</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">⭐</span>
+          <span>Reviews & Ratings</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-decoration">
+      <div class="floating-element el-1">🍕</div>
+      <div class="floating-element el-2">🍔</div>
+      <div class="floating-element el-3">🍣</div>
+      <div class="floating-element el-4">🥗</div>
+      <div class="floating-element el-5">🍰</div>
+    </div>
+  </div>
+
+  <!-- Right Side - Login Form -->
+  <div class="form-section">
+    <div class="form-container">
+      <div class="form-header">
+        <h2 class="form-title">Welcome Back!</h2>
+        <p class="form-subtitle">Sign in to continue your culinary journey</p>
+      </div>
+
+      <!-- Role Selection -->
+      <div class="role-selection">
+        <label class="role-label">I am a:</label>
+        <div class="role-buttons">
+          <button type="button" (click)="selectRole('ADMIN')"
+            class="role-btn"
+            [ngClass]="{'role-btn-active': selectedRole() === 'ADMIN'}">
+            <div class="role-icon-wrapper">
+              <span class="role-icon">👑</span>
+            </div>
+            <div class="role-text">
+              <p class="role-name">Admin</p>
+              <p class="role-desc">Full access</p>
+            </div>
+          </button>
+          <button type="button" (click)="selectRole('MANAGER')"
+            class="role-btn"
+            [ngClass]="{'role-btn-active': selectedRole() === 'MANAGER'}">
+            <div class="role-icon-wrapper">
+              <span class="role-icon">🍽️</span>
+            </div>
+            <div class="role-text">
+              <p class="role-name">Manager</p>
+              <p class="role-desc">Manage content</p>
+            </div>
+          </button>
+          <button type="button" (click)="selectRole('USER')"
+            class="role-btn"
+            [ngClass]="{'role-btn-active': selectedRole() === 'USER'}">
+            <div class="role-icon-wrapper">
+              <span class="role-icon">👤</span>
+            </div>
+            <div class="role-text">
+              <p class="role-name">User</p>
+              <p class="role-desc">Browse & order</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group">
+          <label class="form-label">
+            <svg class="label-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            Email Address
+          </label>
+          <div class="input-wrapper">
+            <input type="email" [(ngModel)]="email" name="email" required
+              class="form-input"
+              [placeholder]="getEmailPlaceholder()"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <svg class="label-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            Password
+          </label>
+          <div class="input-wrapper">
+            <input type="password" [(ngModel)]="password" name="password" required
+              class="form-input"
+              [placeholder]="getPasswordPlaceholder()"/>
+          </div>
+        </div>
+
+        @if (error()) {
+          <div class="error-message">
+            <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            {{ error() }}
+          </div>
+        }
+
+        <button type="submit" [disabled]="loading()" class="submit-btn">
+          @if (loading()) {
+            <svg class="spinner" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity="0.25"/>
+              <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Signing in...
+          } @else {
+            <span>Sign In</span>
+            <svg class="btn-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            </svg>
+          }
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <div class="register-link">
+        <p>New to RMRTS? <a routerLink="/register" class="link">Create an account</a></p>
+      </div>
+
+      <div class="demo-credentials">
+        <div class="demo-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="demo-icon">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          <span>Quick Demo Access</span>
+        </div>
+        <div class="demo-list">
+          <div class="demo-item" (click)="selectRole('ADMIN')">
+            <span class="demo-role">👑 Admin:</span>
+            <span class="demo-cred">(use your admin email)</span>
+          </div>
+          <div class="demo-item" (click)="selectRole('MANAGER')">
+            <span class="demo-role">🍽️ Manager:</span>
+            <span class="demo-cred">(use your manager email)</span>
+          </div>
+          <div class="demo-item" (click)="selectRole('USER')">
+            <span class="demo-role">👤 User:</span>
+            <span class="demo-cred">(use your user email)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

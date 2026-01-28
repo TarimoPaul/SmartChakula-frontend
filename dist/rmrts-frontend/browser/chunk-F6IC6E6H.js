@@ -1,0 +1,1 @@
+import"./chunk-2VMXMS7J.js";var t=[{path:"",loadComponent:()=>import("./chunk-UVUFJAI4.js").then(o=>o.ReviewListComponent)},{path:"new",loadComponent:()=>import("./chunk-ZLL7MW3G.js").then(o=>o.ReviewFormComponent)}];export{t as REVIEW_ROUTES};

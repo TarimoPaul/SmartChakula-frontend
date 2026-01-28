@@ -1,104 +1,55 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SettingsDropdownComponent } from '../settings-dropdown/settings-dropdown.component';
 import { TranslationService } from '../../../core/services/translation.service';
+import { GraphQLService, SmartCakulaRestaurant } from '../../../core/services/graphql.service';
 
 @Component({
   selector: 'app-admin-sidebar',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, SettingsDropdownComponent],
-  template: `
-    <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 flex flex-col">
-      <div class="p-6 border-b border-gray-100">
-        <h1 class="text-2xl font-display font-bold text-primary">RMRTS</h1>
-        <p class="text-xs text-secondary mt-1">Restaurant Admin</p>
-      </div>
-
-      <!-- Restaurant Selector -->
-      @if (restaurants().length > 1) {
-        <div class="p-4 border-b border-gray-100">
-          <label class="block text-xs font-medium text-secondary mb-2">Managing:</label>
-          <select [(value)]="selectedRestaurantId" (change)="onRestaurantChange($event)" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-            @for (r of restaurants(); track r.id) {
-              <option [value]="r.id">{{ r.name }}</option>
-            }
-          </select>
-        </div>
-      }
-      
-      <nav class="flex-1 p-4 space-y-1">
-        <a routerLink="/admin/dashboard" routerLinkActive="bg-primary/10 text-primary" 
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-50 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-          Dashboard
-        </a>
-        <a routerLink="/admin/restaurants" routerLinkActive="bg-primary/10 text-primary"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-50 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-          My Restaurants
-        </a>
-        <a routerLink="/admin/categories" routerLinkActive="bg-primary/10 text-primary"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-50 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-          Categories
-        </a>
-        <a routerLink="/admin/menu" routerLinkActive="bg-primary/10 text-primary"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-50 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          Menu Items
-        </a>
-        <a routerLink="/admin/reservations" routerLinkActive="bg-primary/10 text-primary"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-50 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          Reservations
-        </a>
-        <a routerLink="/admin/reviews" routerLinkActive="bg-primary/10 text-primary"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-          Reviews
-        </a>
-        <a routerLink="/admin/services" routerLinkActive="bg-primary/10 text-primary"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          My Services
-        </a>
-        <a routerLink="/admin/regions" routerLinkActive="bg-primary/10 text-primary"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          Regions
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-gray-100 dark:border-gray-700 space-y-2">
-        <div class="flex items-center justify-between px-4 py-2">
-          <span class="text-sm text-secondary dark:text-gray-400">{{ t.t('common.settings') }}</span>
-          <app-settings-dropdown />
-        </div>
-        <button (click)="logout()" class="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-secondary dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-          {{ t.t('common.logout') }}
-        </button>
-      </div>
-    </aside>
-  `
+  templateUrl: './admin-sidebar.component.html',
+  styleUrl: './admin-sidebar.component.css'
 })
-export class AdminSidebarComponent {
+export class AdminSidebarComponent implements OnInit {
   private authService = inject(AuthService);
+  private graphql = inject(GraphQLService);
   t = inject(TranslationService);
 
-  selectedRestaurantId = '1';
+  private readonly selectedRestaurantStorageKey = 'selectedRestaurantUid';
 
-  restaurants = signal([
-    { id: '1', name: 'The Golden Fork' },
-    { id: '2', name: 'Le Petit Bistro' }
-  ]);
+  selectedRestaurantUid = '';
+  restaurants = signal<SmartCakulaRestaurant[]>([]);
+
+  ngOnInit(): void {
+    this.selectedRestaurantUid = localStorage.getItem(this.selectedRestaurantStorageKey) || '';
+
+    this.graphql.getSmartCakulaRestaurants().subscribe({
+      next: (list) => {
+        this.restaurants.set(list);
+
+        // Initialize selection if missing or no longer valid
+        const stillValid = !!list.find(r => r.uid === this.selectedRestaurantUid);
+        if (!this.selectedRestaurantUid || !stillValid) {
+          this.selectedRestaurantUid = list[0]?.uid || '';
+          if (this.selectedRestaurantUid) {
+            localStorage.setItem(this.selectedRestaurantStorageKey, this.selectedRestaurantUid);
+          }
+        }
+      },
+      error: () => {
+        this.restaurants.set([]);
+      }
+    });
+  }
 
   onRestaurantChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
-    this.selectedRestaurantId = select.value;
-    console.log('Switched to restaurant:', this.selectedRestaurantId);
+    this.selectedRestaurantUid = select.value;
+    localStorage.setItem(this.selectedRestaurantStorageKey, this.selectedRestaurantUid);
+    console.log('Switched to restaurant:', this.selectedRestaurantUid);
   }
 
   logout(): void {
